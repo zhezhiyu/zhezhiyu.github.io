@@ -79,14 +79,17 @@
 
 
 
+<meta name="description" content="总结一些interface声明时的规范，相关宏的介绍，定义方法时有用的修饰符，编写注释的规范，最终写出一个合格的头文件。 1.读写权限1.1实例变量的@public,@protected,@private关键字1.2属性的readonly,readwrite关键字2.前向声明3.只暴露必要的接口和实现3.1不要暴露任何只在类内部使用的私有方法3.2不要在头文件里声明类内部遵循的protocol4.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello Hexo">
+<meta property="og:title" content="折之羽">
 <meta property="og:url" content="zhezhiyu.github.io/2018/05/08/Hello-Hexo/index.html">
 <meta property="og:site_name" content="折之羽">
+<meta property="og:description" content="总结一些interface声明时的规范，相关宏的介绍，定义方法时有用的修饰符，编写注释的规范，最终写出一个合格的头文件。 1.读写权限1.1实例变量的@public,@protected,@private关键字1.2属性的readonly,readwrite关键字2.前向声明3.只暴露必要的接口和实现3.1不要暴露任何只在类内部使用的私有方法3.2不要在头文件里声明类内部遵循的protocol4.">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-08T06:44:03.000Z">
+<meta property="og:updated_time" content="2018-05-17T07:12:37.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello Hexo">
+<meta name="twitter:title" content="折之羽">
+<meta name="twitter:description" content="总结一些interface声明时的规范，相关宏的介绍，定义方法时有用的修饰符，编写注释的规范，最终写出一个合格的头文件。 1.读写权限1.1实例变量的@public,@protected,@private关键字1.2属性的readonly,readwrite关键字2.前向声明3.只暴露必要的接口和实现3.1不要暴露任何只在类内部使用的私有方法3.2不要在头文件里声明类内部遵循的protocol4.">
 
 
 
@@ -122,7 +125,7 @@
 
 
 
-  <title>Hello Hexo | 折之羽</title>
+  <title> | 折之羽</title>
   
 
 
@@ -246,7 +249,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Hello Hexo</h1>
+          <h1 class="post-title" itemprop="name headline"></h1>
         
 
         <div class="post-meta">
@@ -296,7 +299,113 @@
       
 
       
-        
+        <p>总结一些interface声明时的规范，相关宏的介绍，定义方法时有用的修饰符，编写注释的规范，最终写出一个合格的头文件。</p>
+<p>1.读写权限<br>1.1实例变量的@public,@protected,@private关键字<br>1.2属性的readonly,readwrite关键字<br>2.前向声明<br>3.只暴露必要的接口和实现<br>3.1不要暴露任何只在类内部使用的私有方法<br>3.2不要在头文件里声明类内部遵循的protocol<br>4.nullability说明<br>5.定义枚举<br>5.1 NS_ENUM<br>5.2 NS_OPTIONS<br>5.3 字符串枚举<br>6.使用extern向外部提供只读常量<br>7.向子类和category提供父类的私有属性<br>8.标明designated initializer<br>9.API版本控制<br>9.1 available<br>9.2 unavailable<br>9.3 deprecated<br>10.额外的修饰符<br>10.1泛型<br>10.2 NS_REQUIRES_SUPER<br>10.3 NS_NOESCAPE<br>11.写注释<br>11.1单行注释<br>11.2多行注释<br>11.3枚举注释<br>11.4几个注释约定<br>1.读写权限<br>.h文件里的声明是用于暴露给外部的接口，而类内部的私有方法、私有属性和实例变量，应该放到.m文件的interface extension里。</p>
+<p>1.1 实例变量的@public,@protected,@private关键字<br>这3个关键字用于修饰实例变量，不能用于修饰属性。当错误地使用了实例变量时，Xcode会报错提示。</p>
+<p>关键字    说明<br>@private    作用范围只能在自身类<br>@protected    作用范围在自身类和继承自己的子类，什么都不写，默认是此属性。<br>@public    作用范围最大，在任何地方。<br>示例代码：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>//SearchManager.h<br>@interface SearchManager : NSObject {<br>@public    NSInteger <em>state;<br>@public    NSInteger </em>timeout;<br>@protected id *searchAPI;<br>@private   id _privateIvar;<br>}<br>@end<br>由于会暴露私有变量，并且没有@property的一些高级关键字，很少在头文件里声明实例变量。优先使用@property。</p>
+<p>1.2 属性的readonly,readwrite关键字<br>头文件中的属性是用于描述这个对象的一系列特性集合。<br>声明@property时，在.h里使用readonly，让外部只有读的权限，在.m里使用readwrite，使内部拥有读写权限。</p>
+<p>示例代码：</p>
+<p>1<br>2<br>3<br>4<br>//SearchManager.h<br>@interface SearchManager : NSObject<br>@property (nonatomic, readonly) NSInteger <em> state;<br>@end<br>1<br>2<br>3<br>4<br>//SearchManager.m<br>@interface SearchManager : NSObject<br>@property (nonatomic, readwrite) NSInteger </em> state;<br>@end<br>2.前向声明<br>当在@interface的接口里用到了其他类，不要在.h里直接导入类的头文件，这样会让使用此头文件的地方也导入这些不必要的其他头文件。正确的做法是使用关键字@class进行前向声明。当然，如果是继承了父类，还是需要import父类的头文件。<br>示例代码：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>//SearchManager.h</p>
+<p>#import “SearchManagerBase.h”//导入父类的头文件<br>@class LocationModel;//前向声明LocationModel类<br>typedef void(^LocationSearchCompletionHandler)(LocationModel <em>location, NSError </em>error);<br>@interface LocationSearchManager : SearchManagerBase</p>
+<ul>
+<li>(void)searchLocationWithKeyword:(NSString *)keyword completionHandler:(LocationSearchCompletionHandler)completionHandler;<br>@end<br>使用@class会告诉编译器有这么一个类存在，但是现在并不关心这个类的具体实现，等到调用者在.m里使用的时候再import这个类即可。使用@class和@protocol分别声明一个类和一个protocol。<br>使用前向引用的原因有两个：</li>
+</ul>
+<p>提升编译效率。<br>如果import了LocationModel.h，那么当LocationModel.h的内容发生变化时，所有import了LocationModel.h的地方都需要重新编译。如果.m引用了SearchManager.h，但是并没有使用LocationModel，就会增加不必要的编译，降低开发效率。<br>解决交叉引用的问题。<br>如果类A的头文件import了B，类B的头文件import了A，这样在编译时会报错：“can not find interface declaration”，这是因为Objective-C不允许交叉引用。<br>3.只暴露必要的接口和实现<br>3.1不要暴露任何只在类内部使用的私有方法<br>头文件里只声明那些给外部使用的公开方法，并且在设计时需要考虑到可测试性，遵循单一职责。<br>私有方法只定义在类内部，并且为了进行区别，建议在私有方法前加上前缀，例如- (void)p_myPrivateMethod。<br>由于Apple在它的编码规范里声明了，Apple公司拥有下划线的方法前缀，就像它拥有NS,UI这些类名前缀一样，因此不建议我们的私有方法直接使用下划线作为前缀。否则，当你在继承Cocoa Touch的类时，有可能会覆盖父类的私有方法，造成难以调试的错误。</p>
+<p>3.2不要在头文件里声明类内部遵循的protocol<br>错误的示例代码：</p>
+<p>1<br>2<br>3<br>4<br>//SearchManager.h<br>@interface SearchManager : NSObject&lt;NSCoding, UITableViewDelegate&gt;<br>@property (nonatomic, readonly) NSInteger * state;<br>@end<br>UITableViewDelegate是类内部使用时遵循的protocol，没有必要暴露给外部，因此应该放到.m文件里。<br>而NSCoding则描述了类的特性，用于告诉外部本类可以使用归档，因此应该放在头文件里。</p>
+<p>4.nullability说明<br>在声明时，可以使用下列关键字描述对象是否可以为nil。</p>
+<p>关键字    说明<br>nullable    可空，用于描述objc对象<br>nonnull    不可空，用于描述objc对象<br>null_unspecified    不确定，用于描述objc对象<br>null_resettable    set可空，get不为空。仅用于property<br>_Nullable    可空，用于描述C指针和block<br>_Nonnull    不可空，用于描述C指针和block<br>_Null_unspecified    不确定，用于描述C指针和block<br>示例代码：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>//SearchManager.h</p>
+<p>#import “SearchManagerBase.h”<br>@class LocationModel;<br>typedef void(^LocationSearchCompletionHandler)(LocationModel <em>_Nullable location, NSError </em>_Nullable error);<br>@interface LocationSearchManager : SearchManagerBase</p>
+<ul>
+<li>(void)searchLocationWithKeyword:(nonnull NSString *)keyword completionHandler:(LocationSearchCompletionHandler _Nonnull)completionHandler;<br>@end<br>如果向一个使用nonnull修饰的值赋空，编译器会给出警告。<br>在开发时，大部分时候使用的都是nonnull，因此Apple提供了一对宏NS_ASSUME_NONNULL_BEGIN和NS_ASSUME_NONNULL_END来进行快速修饰，写在两个宏之间的属性、方法，均会使用nonnull修饰。<br>示例代码：</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>//LocationSearchManager.h</p>
+<p>#import “SearchManagerBase.h”<br>@class LocationModel;<br>NS_ASSUME_NONNULL_BEGIN<br>typedef void(^LocationSearchCompletionHandler)(LocationModel <em>_Nullable location, NSError </em>_Nullable error);<br>@interface LocationSearchManager : SearchManagerBase</p>
+<ul>
+<li>(void)searchLocationWithKeyword:(NSString *)keyword completionHandler:(LocationSearchCompletionHandler)completionHandler;<br>@end<br>NS_ASSUME_NONNULL_END<br>5.定义枚举<br>关于NS_ENUM和NS_OPTIONS的区别，参考这里。<br>简单来说，NS_OPTIONS提供了按位掩码的功能。</li>
+</ul>
+<p>5.1 NS_ENUM<br>示例代码：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>typedef NS_ENUM(NSInteger,SearchState) {<br>SearchStateNotSearch,<br>SearchStateSearching,<br>SearchStateSearchFinished,<br>SearchStateSearchFailed<br>};<br>5.2 NS_OPTIONS<br>示例代码，参考NSKeyValueObserving.h：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>typedef NS_OPTIONS(NSUInteger, NSKeyValueObservingOptions) {<br>NSKeyValueObservingOptionNew,<br>NSKeyValueObservingOptionOld,<br>NSKeyValueObservingOptionInitial,<br>NSKeyValueObservingOptionPrior<br>};<br>在使用时就可以用|组合多个option：</p>
+<p>1<br>[_webView addObserver:self forKeyPath:@”title” options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew context:NULL];<br>5.3 字符串枚举<br>当使用字典作为参数传递，或者作为返回值时，往往难以直接提供字典的key，现在使用字符串枚举即可解决这个问题。<br>示例代码，参考NSKeyValueObserving.h：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>//使用NS_STRING_ENUM宏，定义了一个枚举类型<br>typedef NSString * NSKeyValueChangeKey NS_STRING_ENUM;<br>FOUNDATION_EXPORT NSKeyValueChangeKey const NSKeyValueChangeKindKey;<br>FOUNDATION_EXPORT NSKeyValueChangeKey const NSKeyValueChangeNewKey;<br>FOUNDATION_EXPORT NSKeyValueChangeKey const NSKeyValueChangeOldKey;<br>FOUNDATION_EXPORT NSKeyValueChangeKey const NSKeyValueChangeIndexesKey;<br>FOUNDATION_EXPORT NSKeyValueChangeKey const NSKeyValueChangeNotificationIsPriorKey;<br>//使用泛型，声明了change参数用到的key，是在NSKeyValueChangeKey的枚举范围中</p>
+<ul>
+<li>(void)observeValueForKeyPath:(nullable NSString <em>)keyPath ofObject:(nullable id)object change:(nullable NSDictionary&lt;NSKeyValueChangeKey, id&gt; </em>)change context:(nullable void *)context;<br>6.使用extern向外部提供只读常量<br>这不关@interface的事，但是和头文件有关，就放在一起说明了。</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>//SearchManager.h<br>extern NSString <em>const SearchErrorDomain;<br>extern NSInteger SearchDefaultTimeout;<br>@interface SearchManager : NSObject<br>@end<br>1<br>2<br>3<br>4<br>5<br>6<br>//SearchManager.m<br>NSString </em>const SearchErrorDomain = @”SearchErrorDomain”;<br>const NSInteger SearchDefaultTimeout = 20;<br>@interface SearchManager()<br>@end<br>7.向子类和category提供父类的私有属性<br>由于类的头文件只存放那些暴露给外部的属性和方法，在遇到这些情况时，会遇到障碍：</p>
+<p>在子类里或者category里，想要使用父类定义在.m里的私有属性。<br>在类的头文件里属性是readonly，但是在子类或者category里，需要readwrite权限。<br>由于这些属性并没有暴露在头文件里，因此需要另外建立一个私有头文件，用来存放这些需要暴露给子类和category的属性。<br>可以参考Apple官方的UIGestureRecognizerSubclass.h。<br>示例代码：<br>1<br>2<br>3<br>4<br>5<br>//SearchManager.h<br>@interface SearchManager : NSObject<br>///外部访问，只有读权限<br>@property (nonatomic, readonly) SearchState state;<br>@end<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>//SearchManager.m<br>@interface SearchManager()<br>///内部使用，有读写权限<br>@property (nonatomic, assign) SearchState state;<br>///只在内部使用的私有属性<br>@property (nonatomic, strong) id searchAPI;<br>@end<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>///暴露给子类和category的私有属性和私有方法<br>//SearchManagerInternal.h<br>///限制使用此头文件，防止被别的类误用</p>
+<p>#ifdef SEARCHMANAGER_PROTECTED_ACCESS</p>
+<p>#import “SearchManager.h”<br>@interface SearchManager()<br>///在internal.h里，重新声明为readwrite权限<br>@property (nonatomic, readwrite, assign) SearchState state;<br>///暴露私有属性<br>@property (nonatomic, strong) id searchAPI;<br>///暴露私有方法</p>
+<ul>
+<li>(void)p_privateMethod;<br>@end<br>#else<br>#error Only be included by SearchManager’s subclass or category!<br>#endif<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>///category的实现文件<br>//SearchManager+Category.m<br>///声明私有头文件的使用权限<br>#define SEARCHMANAGER_PROTECTED_ACCESS<br>///导入私有头文件<br>#import “SearchManagerInternal.h”<br>@implementation SearchManager(Category)</li>
+<li>(void)categoryMethod {<br>//拥有了读写权限<br>self.state = SearchStateSearching;<br>//可以访问私有属性<br>[self.searchAPI startSearch];<br>//可以使用私有方法<br>[self p_privateMethod];<br>}<br>@end<br>SearchManagerInternal.h其实也是公开的，其他类也能够导入并使用，只能在开发时进行约定。如果想要限制其他类导入，并且提示错误，Internal.h可以使用如下方式:</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5</p>
+<p>#ifdef MYCLASS_PROTECTED_ACCESS<br>//声明部分</p>
+<p>#else</p>
+<p>#error Only be included by MYCLASS’s subclass or category!</p>
+<p>#endif<br>这样在别的类内意外地导入了Internal.h时就会产生编译警告，并且无法直接使用。缺点是需要在所有使用到Internal.h的地方都#define MYCLASS_PROTECTED_ACCESS。</p>
+<p>8.标明designated initializer<br>指定初始化方法，即接收参数最多的那个初始化方法，其他初始化方法调用它即可，这样设计的目的是为了保证所有初始化方法都正确地初始化实例变量。<br>在方法后面加上NS_DESIGNATED_INITIALIZER宏即可。这样，当你子类化这个类时，在子类的初始化方法里如果没有正确地调用父类的designated initializer，编译器就会给出警告。<br>实例代码：</p>
+<p>1<br>2<br>3<br>4<br>@interface WKWebView : UIView</p>
+<ul>
+<li>(instancetype)initWithFrame:(CGRect)frame configuration:(WKWebViewConfiguration *)configuration NS_DESIGNATED_INITIALIZER;</li>
+<li>(nullable instancetype)initWithCoder:(NSCoder *)coder NS_DESIGNATED_INITIALIZER;<br>@end<br>关于designated initializer更详细的说明，参考:</li>
+</ul>
+<p>Objective-C 拾遗：designated initializer<br>正确编写Designated Initializer的几个原则<br>9.API版本控制<br>在更新接口，或者开发framework时，需要标明版本信息，告诉使用者此接口的平台限制、操作系统版本、是否可用、是否已弃用等。<br>苹果给出了几个自带的宏用于标明版本，Xcode在检测到错误使用时会给出警告。只需要在方法名后面加上对应的宏即可。</p>
+<p>9.1 available<br>声明本接口最低支持的操作系统版本。<br>当你的接口使用了新系统的API，例如iOS8以上才有的UIAlertController，但是项目的deployment target却是iOS7时，需要标明此接口的版本信息，让使用者进行兼容。<br>示例:</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>//SearchManager.h<br>typedef NS_ENUM(NSInteger,SearchState) {<br>SearchStateNotSearch,<br>SearchStateSearching,<br>SearchStateSearchFinished,<br>SearchStateSearchFailed<br>} NS_ENUM_AVAILABLE_IOS(2_0);//此枚举在iOS2.0以上才能使用<br>NS_CLASS_AVAILABLE_IOS(2_0) //此类在iOS2.0以上才能使用<br>@interface SearchManager : NSObject</p>
+<ul>
+<li>(void)reSearch NS_AVAILABLE_IOS(5_0);//此方法在iOS5.0以上才能使用<br>@end<br>这几个宏有对应平台的版本，例如NS_AVAILABLE_MAC, NS_AVAILABLE_IOS, NS_AVAILABLE_IPHONE。<br>iOS10开始提供了新的available宏API_AVAILABLE，用来统一macOS、iOS、watchOS、tvOS几个平台。</li>
+</ul>
+<p>1<br>2<br>3<br>API_AVAILABLE(macos(10.10))<br>API_AVAILABLE(macos(10.9), ios(10.0))<br>API_AVAILABLE(macos(10.4), ios(8.0), watchos(2.0), tvos(10.0))<br>9.2 unavailable<br>声明此接口不可用，大多数时候是用于声明所在平台限制。<br>示例：</p>
+<p>1<br>2<br>3<br>4<br>5<br>@interface SearchManager : NSObject</p>
+<ul>
+<li>(void)searchInWatch NS_UNAVAILABLE;//不能用此接口</li>
+<li>(void)searchInHostApp NS_EXTENSION_UNAVAILABLE_IOS;//extension里不能用此接口</li>
+<li>(void)search __TVOS_PROHIBITED;//tvOS里不能用此接口，可修饰枚举，类，方法，参数<br>@end<br>iOS10开始提供了新的unavailable宏API_UNAVAILABLE:</li>
+</ul>
+<p>1<br>2<br>API_UNAVAILABLE(macos)<br>API_UNAVAILABLE(watchos, tvos)<br>9.3 deprecated<br>声明此接口已经被弃用，可以同时加注释注明替代接口。<br>当deployment target版本号设置成大于或等于方法被弃用的版本号时，Xcode会给出警告。<br>示例:</p>
+<p>1<br>2<br>3<br>4<br>//注明废弃类<br>NS_CLASS_DEPRECATED_IOS(2_0, 9_0, “UIAlertView is deprecated. Use UIAlertController with a preferredStyle of UIAlertControllerStyleAlert instead”)<br>@interface UIAlertView : UIView<br>@end<br>1<br>2<br>3<br>4<br>//注明废弃API<br>@interface UIViewController : UIResponder</p>
+<ul>
+<li>(void)viewDidUnload NS_DEPRECATED_IOS(3_0,6_0);<br>@end<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>//注明废弃枚举<br>typedef NS_ENUM(NSInteger, UIStatusBarStyle) {<br>UIStatusBarStyleDefault                                     = 0, // Dark content, for use on light backgrounds<br>UIStatusBarStyleLightContent     NS_ENUM_AVAILABLE_IOS(7_0) = 1, // Light content, for use on dark backgrounds</li>
+</ul>
+<p>UIStatusBarStyleBlackTranslucent NS_ENUM_DEPRECATED_IOS(2_0, 7_0, “Use UIStatusBarStyleLightContent”) = 1,<br>UIStatusBarStyleBlackOpaque      NS_ENUM_DEPRECATED_IOS(2_0, 7_0, “Use UIStatusBarStyleLightContent”) = 2,<br>}<br>iOS10开始提供了新的deprecated宏API_DEPRECATED和API_DEPRECATED_WITH_REPLACEMENT。前者可以注明弃用原因，后者可以注明替代接口。</p>
+<p>1<br>2<br>3<br>4<br>5<br>API_DEPRECATED(“No longer supported”, macos(10.4, 10.8))<br>API_DEPRECATED(“No longer supported”, macos(10.4, 10.8), ios(2.0, 3.0), watchos(2.0, 3.0), tvos(9.0, 10.0))<br>API_DEPRECATED_WITH_REPLACEMENT(“-setName:”, tvos(10.0, 10.4), ios(9.0, 10.0))<br>API_DEPRECATED_WITH_REPLACEMENT(“SomeClassName”, macos(10.4, 10.6), watchos(2.0, 3.0))<br>10.额外的修饰符<br>10.1 泛型<br>在声明时，对集合类型的对象增加泛型的修饰，就可以声明集合内存储的数据类型。<br>例如：</p>
+<p>1<br>@property (nonatomic, strong) NSMutableArray<nsstring *=""> <em>myArray;<br>当你向myArray里放入一个非NSString </em>类型的对象时，编译器会给出警告。</nsstring></p>
+<p>1<br>@property(nonatomic, strong) NSMutableArray&lt;__kindof UIView <em>&gt; </em> viewArray;<br>_kindof只限定了存储类型为UIView，因此也可以存储UIView的子类，例如UIButton。<br>更详细的介绍，参考:Objective—C语言的新魅力——Nullability、泛型集合与类型延拓</p>
+<p>10.2 NS_REQUIRES_SUPER<br>NS_REQUIRES_SUPER宏用于声明子类在重载父类的这个方法时，需要调用父类的方法。例如：</p>
+<p>1</p>
+<ul>
+<li>(void)viewWillAppear:(BOOL)animated NS_REQUIRES_SUPER;<br>10.3 NS_NOESCAPE<br>NS_NOESCAPE用于修饰方法中的block类型参数，例如：</li>
+</ul>
+<p>1<br>2<br>3<br>@interface NSArray: NSObject</p>
+<ul>
+<li>(NSArray *)sortedArrayUsingComparator:(NSComparator NS_NOESCAPE)cmptr<br>@end<br>作用是告诉编译器，cmptr这个block在sortedArrayUsingComparator:方法返回之前就会执行完毕，而不是被保存起来在之后的某个时候再执行。<br>类似于这样的实现：</li>
+</ul>
+<p>1<br>2<br>3<br>4<br>5</p>
+<ul>
+<li>(void)performWithLock:(NS_NOESCAPE void (^)())block {  // exposed as @noescape to Swift<br>[myLock lock];<br>block();<br>[myLock unlock];<br>}<br>编译器知道之后，就会相应地做一些优化，例如去掉一些多余的对self的捕获、retain、release操作。因为block的存活范围仅限于本方法内，没有必要再在block内保留self了。<br>更详细的介绍，参考这里。</li>
+</ul>
+<p>11.写注释<br>头文件就是文档，需要让使用者快速知道这个类的作用。一个好的方法名可以让使用者快速理解，但大部分时候还是需要相应的注释。<br>写好格式化注释后，当光标停留在方法名和属性上时，在Xcode右侧的Quick Help栏里会出现注释内容，按住option并单击，也会弹出注释框。</p>
+<p>11.1单行注释<br>直接在方法或者属性声明的上一行使用///，后面加注释，同时兼容Xcode和appleDoc。Xcode也支持//!，但是appleDoc不支持。</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>//SearchManagerBase.h<br>///搜索manager的基类<br>@interface SearchManagerBase : NSObject<br>///搜索状态<br>@property (nonatomic, readonly) NSInteger * state;<br>@end<br>11.2多行注释<br>多行注释使用：</p>
+<p>1<br>2<br>3<br>/*<em><br>注释内容
+</em>/<br>Xcode8提供了快速生成格式化注释的快捷键：option+command+/。如果方法有参数，会自动添加@param关键字，用于描述对应的参数。<br>Apple提供了官方的headDoc语法，但是很多都已经在Xcode中失效了，而且有些关键字也和appleDoc不兼容。下面几种列举出了在Xcode中仍然有效的一些关键字：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>/**<br>演示苹果headDoc的语法。这里可以写方法简介</p>
+<p>@brief 方法的简介(appleDoc不支持此关键字)<br>@discussion 方法的详细说明</p>
+<p>@code //示例代码(这个在Xcode里常用，但是appleDoc不支持此关键字)<br>UIView *view;<br>@endcode</p>
+<p>@bug       存在的bug的说明<br>@note      需要注意的提示<br>@warning   警告<br>@since     iOS7.0<br>@exception 方法会抛出的异常的说明</p>
+<p>@attention 注意，从这里开始往下的关键字，appleDoc都不支持<br>@author    编写者<br>@copyright 版权<br>@date      日期<br>@invariant 不变量<br>@post      后置条件<br>@pre       前置条件<br>@remarks   备注<br>@todo      todo text<br>@version   版本<br>*/</p>
+<ul>
+<li>(void)sampleMethod;<br>在Xcode中，就会显示为这样：<br>comment.png</li>
+</ul>
+<p>11.3 枚举注释<br>如果要给枚举注释，需要在每个枚举值前注释，按照如下格式：</p>
+<p>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>///搜索状态<br>typedef NS_ENUM(NSInteger,SearchState) {<br>///没有开始搜索<br>SearchStateNotSearch,<br>///搜索中<br>SearchStateSearching,<br>///搜索结束<br>SearchStateSearchFinished,<br>///搜索失败<br>SearchStateSearchFailed<br>};<br>11.4 几个注释约定<br>需要注释的内容：</p>
+<p>尽量为类添加描述，即便只有一句话。<br>标明某些参数和属性的默认值，比如超时time。<br>如果属性是KVO兼容的，即外部可以使用KVO监听此属性，则在属性注释里声明。<br>回调block参数需要说明回调所在的线程，避免让使用者在block里进行多余的线程判断。<br>如果需要的话，说明使用此API需要的前置条件，防止被错误地调用。<br>对使用了method swizzling的API进行统一形式的标注，方便遇到runtime的bug时进行排查。<br>参考<br><a href="http://blog.sunnyxx.com/2014/04/13/objc_dig_interface/" target="_blank" rel="noopener">http://blog.sunnyxx.com/2014/04/13/objc_dig_interface/</a><br><a href="http://blog.sunnyxx.com/2015/06/12/objc-new-features-in-2015/" target="_blank" rel="noopener">http://blog.sunnyxx.com/2015/06/12/objc-new-features-in-2015/</a></p>
+
       
     </div>
     
