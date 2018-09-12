@@ -79,19 +79,19 @@
 
 
 
-<meta name="description" content="##前言 ######由于公司业务需求, 需要构建大量相似的App, App之间有大量共享的资源, 且有着相似但又不完全相同的功能和界面, 故采用多Target编译方案来实现。 ##技术解决方案 #####分析现有项目, 确定解决方案主要分为3步.  从现有项目中抽取子项目, 构建可复用的大模块. 通过多Target编译的方式, 不同的Target在编译时, 采用不同的资源文件和源文件. 在第2步">
+<meta name="description" content="#前言 ######由于公司业务需求, 需要构建大量相似的App, App之间有大量共享的资源, 且有着相似但又不完全相同的功能和界面, 故采用多Target编译方案来实现。 #技术解决方案  分析现有项目, 确定解决方案主要分为3步.  从现有项目中抽取子项目, 构建可复用的大模块. 通过多Target编译的方式, 不同的Target在编译时, 采用不同的资源文件和源文件. 在第2步的基础上,">
 <meta name="keywords" content="iOS">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用多target来构建大量相似App">
 <meta property="og:url" content="zhezhiyu.github.io/2018/08/30/使用多target来构建大量相似App/index.html">
 <meta property="og:site_name" content="折之羽">
-<meta property="og:description" content="##前言 ######由于公司业务需求, 需要构建大量相似的App, App之间有大量共享的资源, 且有着相似但又不完全相同的功能和界面, 故采用多Target编译方案来实现。 ##技术解决方案 #####分析现有项目, 确定解决方案主要分为3步.  从现有项目中抽取子项目, 构建可复用的大模块. 通过多Target编译的方式, 不同的Target在编译时, 采用不同的资源文件和源文件. 在第2步">
+<meta property="og:description" content="#前言 ######由于公司业务需求, 需要构建大量相似的App, App之间有大量共享的资源, 且有着相似但又不完全相同的功能和界面, 故采用多Target编译方案来实现。 #技术解决方案  分析现有项目, 确定解决方案主要分为3步.  从现有项目中抽取子项目, 构建可复用的大模块. 通过多Target编译的方式, 不同的Target在编译时, 采用不同的资源文件和源文件. 在第2步的基础上,">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://ws3.sinaimg.cn/large/0069RVTdgy1fv5ohp7agtj318y0w8wq1.jpg">
-<meta property="og:updated_time" content="2018-09-12T01:26:59.000Z">
+<meta property="og:updated_time" content="2018-09-12T10:13:11.877Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用多target来构建大量相似App">
-<meta name="twitter:description" content="##前言 ######由于公司业务需求, 需要构建大量相似的App, App之间有大量共享的资源, 且有着相似但又不完全相同的功能和界面, 故采用多Target编译方案来实现。 ##技术解决方案 #####分析现有项目, 确定解决方案主要分为3步.  从现有项目中抽取子项目, 构建可复用的大模块. 通过多Target编译的方式, 不同的Target在编译时, 采用不同的资源文件和源文件. 在第2步">
+<meta name="twitter:description" content="#前言 ######由于公司业务需求, 需要构建大量相似的App, App之间有大量共享的资源, 且有着相似但又不完全相同的功能和界面, 故采用多Target编译方案来实现。 #技术解决方案  分析现有项目, 确定解决方案主要分为3步.  从现有项目中抽取子项目, 构建可复用的大模块. 通过多Target编译的方式, 不同的Target在编译时, 采用不同的资源文件和源文件. 在第2步的基础上,">
 <meta name="twitter:image" content="https://ws3.sinaimg.cn/large/0069RVTdgy1fv5ohp7agtj318y0w8wq1.jpg">
 
 
@@ -302,23 +302,29 @@
       
 
       
-        <p>##前言</p>
+        <p>#前言</p>
 <p>######由于公司业务需求, 需要构建大量相似的App, App之间有大量共享的资源, 且有着相似但又不完全相同的功能和界面, 故采用多Target编译方案来实现。</p>
-<p>##技术解决方案</p>
-<p>#####分析现有项目, 确定解决方案主要分为3步.</p>
+<p>#技术解决方案</p>
+<blockquote>
+<p>分析现有项目, 确定解决方案主要分为3步.</p>
 <ol>
 <li>从现有项目中抽取子项目, 构建可复用的大模块.</li>
 <li>通过多Target编译的方式, 不同的Target在编译时, 采用不同的资源文件和源文件.</li>
 <li>在第2步的基础上, 在项目中创建配置用的Config类, 然后在不同Target各自的配置文件中设置不同的Config值, 来实现差异化界面.</li>
 </ol>
+</blockquote>
 <p>###抽取子项目</p>
-<p>####从现有项目中, 将可重用的模块抽取出来, 以git submodule 的形式组织到项目中. 主要抽取的submodule为:</p>
+<blockquote>
+<p>从现有项目中, 将可重用的模块抽取出来, 以git submodule 的形式组织到项目中. 主要抽取的submodule为:</p>
+</blockquote>
 <p>######1.Core Common, 涉及可复用的底层模块. 包括网络请求模块, 缓存模块, 推送模块, 分享模块, 项目中核心算法, 静态util方法等.</p>
 <p>######2.UI Common, 涉及可复用的注册登录界面, 充值支付界面, 意见反馈界面, 关于界面, 彩种详情界面等. 另外, 将一些可复用的UI风格控件抽取成相应的静态工厂方法, 用于生成同一风格的按钮、背景及状态栏等.</p>
 <p>######3.Lib Common, 所有第三方的开源库依赖</p>
 <p>######4.Resources Common, 共享图片等资源</p>
 <p>###构建多个编译Target</p>
-<p>######构建Target有两种方式, 具体如下图<img src="https://ws3.sinaimg.cn/large/0069RVTdgy1fv5ohp7agtj318y0w8wq1.jpg" alt="target构建"></p>
+<blockquote>
+<p>构建Target有两种方式, 具体如下图<img src="https://ws3.sinaimg.cn/large/0069RVTdgy1fv5ohp7agtj318y0w8wq1.jpg" alt="target构建"></p>
+</blockquote>
 <p>######第一种构建的target带有Appdelegate和main等文件, 在这里并不会用到这些文件, 所以采用第二种方式构建.</p>
 
       
