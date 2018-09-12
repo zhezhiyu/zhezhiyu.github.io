@@ -229,136 +229,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="zhezhiyu.github.io/2018/08/30/使用多target来构建大量相似App/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="折之羽">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1526537414288&di=4ee51ce23c9fa97b200a130f0a589834&imgtype=0&src=http%3A%2F%2Fimages.infzm.com%2Fmedias%2F2015%2F0608%2F91685.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="折之羽">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/30/使用多target来构建大量相似App/" itemprop="url">使用多target来构建大量相似App</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-30T09:35:14+08:00">
-                2018-08-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h6 id="由于公司业务需求-需要构建大量相似的App-App之间有大量共享的资源-且有着相似但又不完全相同的功能和界面-故采用多Target编译方案来实现。"><a href="#由于公司业务需求-需要构建大量相似的App-App之间有大量共享的资源-且有着相似但又不完全相同的功能和界面-故采用多Target编译方案来实现。" class="headerlink" title="由于公司业务需求, 需要构建大量相似的App, App之间有大量共享的资源, 且有着相似但又不完全相同的功能和界面, 故采用多Target编译方案来实现。"></a>由于公司业务需求, 需要构建大量相似的App, App之间有大量共享的资源, 且有着相似但又不完全相同的功能和界面, 故采用多Target编译方案来实现。</h6><h2 id="技术解决方案"><a href="#技术解决方案" class="headerlink" title="技术解决方案"></a>技术解决方案</h2><h6 id="分析现有项目-确定解决方案主要分为3步"><a href="#分析现有项目-确定解决方案主要分为3步" class="headerlink" title="分析现有项目, 确定解决方案主要分为3步."></a>分析现有项目, 确定解决方案主要分为3步.</h6><ol>
-<li>从现有项目中抽取子项目, 构建可复用的大模块.</li>
-<li>通过多Target编译的方式, 不同的Target在编译时, 采用不同的资源文件和源文件.</li>
-<li>在第2步的基础上, 在项目中创建配置用的Config类, 然后在不同Target各自的配置文件中设置不同的Config值, 来实现差异化界面.</li>
-</ol>
-<h4 id="抽取子项目"><a href="#抽取子项目" class="headerlink" title="抽取子项目"></a>抽取子项目</h4><h6 id="从现有项目中-将可重用的模块抽取出来-以git-submodule-的形式组织到项目中-主要抽取的submodule为"><a href="#从现有项目中-将可重用的模块抽取出来-以git-submodule-的形式组织到项目中-主要抽取的submodule为" class="headerlink" title="从现有项目中, 将可重用的模块抽取出来, 以git submodule 的形式组织到项目中. 主要抽取的submodule为:"></a>从现有项目中, 将可重用的模块抽取出来, 以git submodule 的形式组织到项目中. 主要抽取的submodule为:</h6><ol>
-<li>Core Common, 涉及可复用的底层模块. 包括网络请求模块, 缓存模块, 推送模块, 分享模块, 项目中核心算法, 静态util方法等.</li>
-<li>UI Common, 涉及可复用的注册登录界面, 充值支付界面, 意见反馈界面, 关于界面, 彩种详情界面等. 另外, 将一些可复用的UI风格控件抽取成相应的静态工厂方法, 用于生成同一风格的按钮、背景及状态栏等.</li>
-<li>Lib Common, 所有第三方的开源库依赖</li>
-<li>Resources Common, 共享图片等资源</li>
-</ol>
-<h4 id="构建多个编译Target"><a href="#构建多个编译Target" class="headerlink" title="构建多个编译Target"></a>构建多个编译Target</h4><h6 id="构建Target有两种方式-具体如下图"><a href="#构建Target有两种方式-具体如下图" class="headerlink" title="构建Target有两种方式, 具体如下图"></a>构建Target有两种方式, 具体如下图<img src="https://ws3.sinaimg.cn/large/0069RVTdgy1fv5ohp7agtj318y0w8wq1.jpg" alt="target构建"></h6><h6 id="第一种构建的target带有Appdelegate和main等文件-在这里并不会用到这些文件-所以采用第二种方式构建"><a href="#第一种构建的target带有Appdelegate和main等文件-在这里并不会用到这些文件-所以采用第二种方式构建" class="headerlink" title="第一种构建的target带有Appdelegate和main等文件, 在这里并不会用到这些文件, 所以采用第二种方式构建."></a>第一种构建的target带有Appdelegate和main等文件, 在这里并不会用到这些文件, 所以采用第二种方式构建.</h6>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="zhezhiyu.github.io/2018/08/29/XCodegen管理项目试用/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -575,6 +445,136 @@
 <p>最近有点闲, 准备开始随便整理下东西<br>拖延症晚期患者 TAT</p>
 </blockquote>
 
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="zhezhiyu.github.io/2018/06/30/使用多target来构建大量相似App/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="折之羽">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1526537414288&di=4ee51ce23c9fa97b200a130f0a589834&imgtype=0&src=http%3A%2F%2Fimages.infzm.com%2Fmedias%2F2015%2F0608%2F91685.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="折之羽">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/06/30/使用多target来构建大量相似App/" itemprop="url">使用多target来构建大量相似App</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-30T09:35:14+08:00">
+                2018-06-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h6 id="由于公司业务需求-需要构建大量相似的App-App之间有大量共享的资源-且有着相似但又不完全相同的功能和界面-故采用多Target编译方案来实现。"><a href="#由于公司业务需求-需要构建大量相似的App-App之间有大量共享的资源-且有着相似但又不完全相同的功能和界面-故采用多Target编译方案来实现。" class="headerlink" title="由于公司业务需求, 需要构建大量相似的App, App之间有大量共享的资源, 且有着相似但又不完全相同的功能和界面, 故采用多Target编译方案来实现。"></a>由于公司业务需求, 需要构建大量相似的App, App之间有大量共享的资源, 且有着相似但又不完全相同的功能和界面, 故采用多Target编译方案来实现。</h6><h2 id="技术解决方案"><a href="#技术解决方案" class="headerlink" title="技术解决方案"></a>技术解决方案</h2><h6 id="分析现有项目-确定解决方案主要分为3步"><a href="#分析现有项目-确定解决方案主要分为3步" class="headerlink" title="分析现有项目, 确定解决方案主要分为3步."></a>分析现有项目, 确定解决方案主要分为3步.</h6><ol>
+<li>从现有项目中抽取子项目, 构建可复用的大模块.</li>
+<li>通过多Target编译的方式, 不同的Target在编译时, 采用不同的资源文件和源文件.</li>
+<li>在第2步的基础上, 在项目中创建配置用的Config类, 然后在不同Target各自的配置文件中设置不同的Config值, 来实现差异化界面.</li>
+</ol>
+<h4 id="抽取子项目"><a href="#抽取子项目" class="headerlink" title="抽取子项目"></a>抽取子项目</h4><h6 id="从现有项目中-将可重用的模块抽取出来-以git-submodule-的形式组织到项目中-主要抽取的submodule为"><a href="#从现有项目中-将可重用的模块抽取出来-以git-submodule-的形式组织到项目中-主要抽取的submodule为" class="headerlink" title="从现有项目中, 将可重用的模块抽取出来, 以git submodule 的形式组织到项目中. 主要抽取的submodule为:"></a>从现有项目中, 将可重用的模块抽取出来, 以git submodule 的形式组织到项目中. 主要抽取的submodule为:</h6><ol>
+<li>Core Common, 涉及可复用的底层模块. 包括网络请求模块, 缓存模块, 推送模块, 分享模块, 项目中核心算法, 静态util方法等.</li>
+<li>UI Common, 涉及可复用的注册登录界面, 充值支付界面, 意见反馈界面, 关于界面, 彩种详情界面等. 另外, 将一些可复用的UI风格控件抽取成相应的静态工厂方法, 用于生成同一风格的按钮、背景及状态栏等.</li>
+<li>Lib Common, 所有第三方的开源库依赖</li>
+<li>Resources Common, 共享图片等资源</li>
+</ol>
+<h4 id="构建多个编译Target"><a href="#构建多个编译Target" class="headerlink" title="构建多个编译Target"></a>构建多个编译Target</h4><h6 id="构建Target有两种方式-具体如下图"><a href="#构建Target有两种方式-具体如下图" class="headerlink" title="构建Target有两种方式, 具体如下图"></a>构建Target有两种方式, 具体如下图<img src="https://ws3.sinaimg.cn/large/0069RVTdgy1fv5ohp7agtj318y0w8wq1.jpg" alt="target构建"></h6><h6 id="第一种构建的target带有Appdelegate和main等文件-在这里并不会用到这些文件-所以采用第二种方式构建"><a href="#第一种构建的target带有Appdelegate和main等文件-在这里并不会用到这些文件-所以采用第二种方式构建" class="headerlink" title="第一种构建的target带有Appdelegate和main等文件, 在这里并不会用到这些文件, 所以采用第二种方式构建."></a>第一种构建的target带有Appdelegate和main等文件, 在这里并不会用到这些文件, 所以采用第二种方式构建.</h6>
           
         
       
